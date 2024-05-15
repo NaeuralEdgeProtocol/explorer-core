@@ -1,0 +1,24 @@
+name: explorer_core
+description: A dart SDK
+version: 1.0.0
+
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.3.0
+
+# Add regular dependencies here.
+dependencies:
+  basic_utils: ^5.7.0
+  intl: ^0.19.0
+  mqtt5_client: ^4.2.4
+  pointycastle: ^3.9.1
+  dotenv: ^4.2.0
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0
+
+assets:
+  - .env
+  - example/privatekey.pem
