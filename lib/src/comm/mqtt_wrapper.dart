@@ -28,7 +28,6 @@ class MqttWrapper {
     this.onConnectionStatusChanged,
   }) {
     final String randomIdentifier = 'EE_ID_${XpandUtils.getRandomString(8)}';
-    print(randomIdentifier);
     _client = MqttServerClient.withPort(
       server.host,
       randomIdentifier,

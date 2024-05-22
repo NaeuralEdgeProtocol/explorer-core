@@ -1,4 +1,4 @@
-import 'package:explorer_core/src/models/payload/e2_payload.dart';
+import 'package:explorer_core/src/models/messages/e2_payload.dart';
 import 'package:explorer_core/src/models/payload/netmon/netmon_box_details.dart';
 
 class E2Netmon extends E2Payload {

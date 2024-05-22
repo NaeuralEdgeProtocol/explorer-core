@@ -15,7 +15,7 @@ void main() {
 }
 
 example() async {
-  var aixpKeypair = AixpKeyPair(isDebug: true);
+  var aixpKeypair = AixpKeyPair(isDebug: false);
 
   var env = DotEnv(includePlatformEnvironment: true)..load();
 
@@ -46,30 +46,30 @@ example() async {
 
   ///HeartBeat Listner
   client.notifiers.heartbeats.addListener((data) {
-    var payloadpath = data['EE_PAYLOAD_PATH'];
+    var payloadpath = data.payloadPath;
     print("HeartBeat $payloadpath");
 
     ///Handle Commands logs
     ///In response to full HeartBeat command Request
-    final bool isV2 = data['HEARTBEAT_VERSION'] == 'v2';
+    final bool isV2 = data.heartbeatVersion == 'v2';
     if (isV2 &&
-        data['ENCODED_DATA']['DEVICE_LOG'] is List<dynamic> &&
+        data.encodedData!['DEVICE_LOG'] is List<dynamic> &&
         payloadpath[0] == targetId) {
       JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-      String prettyprint = encoder.convert(data['ENCODED_DATA']['DEVICE_LOG']);
+      String prettyprint = encoder.convert(data.encodedData!['DEVICE_LOG']);
       print(prettyprint);
     }
   });
 
   ///Notification Listner
   client.notifiers.notifications.addListener((data) {
-    print("Payload ${data['EE_PAYLOAD_PATH']}");
+    print("Payload ${data.payloadPath}");
   });
 
   ///Payload Listner
   client.notifiers.payloads.addListener((data) {
-    print("Payload ${data['EE_PAYLOAD_PATH']}");
-    var payloadpath = data['EE_PAYLOAD_PATH'];
+    print("Payload ${data.payloadPath}");
+    var payloadpath = data.payloadPath;
 
     /// Handle Config View
     /// In Response to GET_CONFIG Command View
@@ -78,7 +78,7 @@ example() async {
         payloadpath[2] == signatureId &&
         payloadpath[3] == instanceId) {
       JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-      String prettyprint = encoder.convert(data['CONFIG_STARTUP']);
+      String prettyprint = encoder.convert(data.content['CONFIG_STARTUP']);
       print(prettyprint);
     }
   });

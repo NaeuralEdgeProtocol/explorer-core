@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:explorer_core/src/formatter/format_decoder.dart';
-import 'package:explorer_core/src/utils/constant.dart';
 
 class XpandUtils {
   static const _chars =
@@ -32,8 +31,11 @@ class XpandUtils {
         payloadPath[2] == 'UPDATE_MONITOR_01' &&
         payloadPath[3] == 'UPDATE_MONITOR_01_INST') {
       var configStartUp = rawData['CONFIG_STARTUP'];
-      var decodedConfigStartup = decodeEncryptedGzipMessage(configStartUp);
-      rawData['CONFIG_STARTUP'] = decodedConfigStartup;
+      if (configStartUp != null) {
+        var decodedConfigStartup = decodeEncryptedGzipMessage(configStartUp);
+        rawData['CONFIG_STARTUP'] = decodedConfigStartup;
+        return rawData;
+      }
       return rawData;
     }
     return rawData;

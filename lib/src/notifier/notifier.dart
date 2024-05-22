@@ -1,5 +1,5 @@
-class _ListenerWithFilter {
-  final Function(dynamic) listener;
+class _ListenerWithFilter<T> {
+  final Function(T) listener;
 
   _ListenerWithFilter(this.listener);
 }
@@ -7,7 +7,7 @@ class _ListenerWithFilter {
 class EventsNotifier<T> {
   int _listenerIDCounter = 0;
   final int _maxListenerID = -1 >>> 1;
-  final Map<int, _ListenerWithFilter> _listeners = {};
+  final Map<int, _ListenerWithFilter<T>> _listeners = {};
 
   int newListenerID() {
     _listenerIDCounter++;
@@ -17,7 +17,7 @@ class EventsNotifier<T> {
     return _listenerIDCounter;
   }
 
-  int addListener(Function(dynamic data) listener) {
+  int addListener(Function(T data) listener) {
     final listenerID = newListenerID();
     _listeners[listenerID] = _ListenerWithFilter(listener);
     // debugPrint('Added listener with ID: $listenerID');

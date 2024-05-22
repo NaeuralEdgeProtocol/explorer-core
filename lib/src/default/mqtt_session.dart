@@ -8,6 +8,10 @@ import 'package:explorer_core/src/const/mqtt_config.dart';
 import 'package:explorer_core/src/ec_signature_verify/aixp_verifier.dart';
 import 'package:explorer_core/src/formatter/format_decoder.dart';
 import 'package:explorer_core/src/models/e2_box.dart';
+import 'package:explorer_core/src/models/messages/e2_heartbeat.dart';
+import 'package:explorer_core/src/models/messages/e2_notification.dart';
+import 'package:explorer_core/src/models/messages/e2_payload.dart';
+import 'package:explorer_core/src/models/utils_models/e2_heartbeat.dart';
 
 class MqttSession extends GenericSession {
   /// Message Veirifer
@@ -15,9 +19,9 @@ class MqttSession extends GenericSession {
 
   MqttSession({
     required super.server,
-    void Function(Map<String, dynamic>)? onHeartbeat,
-    void Function(Map<String, dynamic>)? onNotification,
-    void Function(Map<String, dynamic>)? onPayload,
+    void Function(E2Heartbeat)? onHeartbeat,
+    void Function(E2Notification)? onNotification,
+    void Function(E2Payload)? onPayload,
 
     /// This at is triggered for any of the 3 mqttWrappers objects
     /// Should be 3 different parameters?
@@ -67,8 +71,8 @@ class MqttSession extends GenericSession {
   void sendCommand(E2Command command) {
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     String prettyprint = encoder.convert(command.signedMap());
-    print(
-        "Sent command on lummetry/${command.targetId}/config: \n\n$prettyprint");
+    // print(
+    //     "Sent command on lummetry/${command.targetId}/config: \n\n$prettyprint");
 
     _payloadMqtt.sendOnTopic(
       command.toJson(),
@@ -84,7 +88,7 @@ class MqttSession extends GenericSession {
     _heartbeatReceiveStream?.stream.listen((message) {
       var messageVerifier = aixpVerifier.verifyMessage(message);
       if (messageVerifier) {
-        _onHeartbeatInternal(XpandUtils.decodeGzipEnyptedHeartBeat(message));
+        onHeartbeat(E2Heartbeat.fromMap(message));
       }
     });
     await _heartbeatMqtt.serverConnect(receiveStream: _heartbeatReceiveStream);
@@ -95,7 +99,7 @@ class MqttSession extends GenericSession {
     _notificationReceiveStream?.stream.listen((message) {
       var messageVerifier = aixpVerifier.verifyMessage(message);
       if (messageVerifier) {
-        onNotification(MqttMessageEncoderDecoder.raw(message));
+        onNotification(E2Notification.fromMap(message));
       }
     });
     await _notificationMqtt.serverConnect(
@@ -108,7 +112,7 @@ class MqttSession extends GenericSession {
     _payloadReceiveStream?.stream.listen((message) {
       var messageVerifier = aixpVerifier.verifyMessage(message);
       if (messageVerifier) {
-        onPayload(XpandUtils.decodeGzipEncryptedPayload(message));
+        onPayload(E2Payload.fromJson(message));
       }
     });
     await _payloadMqtt.serverConnect(receiveStream: _payloadReceiveStream);
@@ -147,14 +151,14 @@ class MqttSession extends GenericSession {
         boxes[boxName] =
             E2Box(name: boxName, isOnline: true, lastHbReceived: timeNow);
       }
-      onHeartbeat.call(message);
+      // onHeartbeat.call(message);
     } catch (_, s) {
       print('Invalid heartbeat received $s');
       // print(s);
     }
   }
 
-  static void _defaultOnHeartbeat(Map<String, dynamic> message) {
+  static void _defaultOnHeartbeat(E2Heartbeat message) {
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     String prettyprint = encoder.convert(message);
 
@@ -162,15 +166,15 @@ class MqttSession extends GenericSession {
     print('');
   }
 
-  static void _defaultOnNotification(Map<String, dynamic> message) {
+  static void _defaultOnNotification(E2Notification notification) {
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-    String prettyprint = encoder.convert(message);
+    String prettyprint = encoder.convert(notification.messageBody);
 
     print('Received notification message: <--\n $prettyprint \n-->');
     print('');
   }
 
-  static void _defaultOnPayload(Map<String, dynamic> message) {
+  static void _defaultOnPayload(E2Payload message) {
     print('Received payload message');
     // print(jsonEncode(message));
   }

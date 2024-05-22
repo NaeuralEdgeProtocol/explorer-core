@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:explorer_core/src/models/e2_message_new.dart';
+import 'package:explorer_core/src/utils/xpand_utils.dart';
 
 class E2Payload extends E2Message {
   E2Payload({
@@ -16,6 +19,7 @@ class E2Payload extends E2Message {
   final String timestamp;
   final String timezone;
   final Map<String, dynamic> content;
+
   static const List<String> mandatoryKeys = [
     'EE_PAYLOAD_PATH',
     'EE_FORMATTER',
@@ -40,12 +44,15 @@ class E2Payload extends E2Message {
       ..removeWhere((key, value) => mandatoryKeys.contains(key));
   }
 
-  factory E2Payload.fromMap(
-    Map<String, dynamic> map, {
-    Map<String, dynamic>? originalMap,
-  }) {
+  // @override
+  // toString() {
+  //   return jsonEncode(messageBody ?? {});
+  // }
+
+  factory E2Payload.fromJson(Map<String, dynamic> map) {
     final content = Map<String, dynamic>.from(map)
       ..removeWhere((key, value) => mandatoryKeys.contains(key));
+    map = XpandUtils.decodeGzipEncryptedPayload(map);
     return E2Payload(
       payloadPath:
           (map['EE_PAYLOAD_PATH'] as List?)?.map((e) => e as String).toList() ??
@@ -57,7 +64,7 @@ class E2Payload extends E2Message {
       content: content,
       timestamp: map['EE_TIMESTAMP'] as String,
       timezone: map['EE_TIMEZONE'] as String,
-      messageBody: originalMap,
+      messageBody: map,
     );
   }
 }

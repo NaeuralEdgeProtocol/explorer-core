@@ -1,11 +1,15 @@
+import 'package:explorer_core/explorer_core.dart';
 import 'package:explorer_core/src/default/mqtt_session.dart';
+import 'package:explorer_core/src/models/messages/e2_heartbeat.dart';
+import 'package:explorer_core/src/models/messages/e2_notification.dart';
 import 'package:explorer_core/src/models/mqtt_server.dart';
+import 'package:explorer_core/src/models/utils_models/e2_heartbeat.dart';
 import 'package:explorer_core/src/notifier/notifier.dart';
 
 class E2Notifiers {
-  final EventsNotifier heartbeats = EventsNotifier();
-  final EventsNotifier payloads = EventsNotifier();
-  final EventsNotifier notifications = EventsNotifier();
+  final EventsNotifier<E2Heartbeat> heartbeats = EventsNotifier();
+  final EventsNotifier<E2Payload> payloads = EventsNotifier<E2Payload>();
+  final EventsNotifier<E2Notification> notifications = EventsNotifier();
   final EventsNotifier all = EventsNotifier();
   final EventsNotifier connection = EventsNotifier();
 }
@@ -65,17 +69,17 @@ class E2Client {
     notifiers.connection.emit(false);
   }
 
-  void _onHeartbeat(Map<String, dynamic> message) {
+  void _onHeartbeat(E2Heartbeat message) {
     notifiers.heartbeats.emit(message);
     notifiers.all.emit(message);
   }
 
-  void _onNotification(Map<String, dynamic> message) {
+  void _onNotification(E2Notification message) {
     notifiers.notifications.emit(message);
-    notifiers.all.emit(message);
+    notifiers.all.emit(message.messageBody);
   }
 
-  void _onPayload(Map<String, dynamic> message) {
+  void _onPayload(E2Payload message) {
     try {
       notifiers.payloads.emit(message);
       notifiers.all.emit(message);

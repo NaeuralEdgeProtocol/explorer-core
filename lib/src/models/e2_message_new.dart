@@ -43,7 +43,7 @@ class E2Message {
   /// Represents the hash??
   final String? hash;
 
-  /// The unmodified message as it was received on MQTT. If the message was created manually, this field is going to be null.
+  /// full raw format message
   final Map<String, dynamic>? messageBody;
 
   Map<String, dynamic> toMap() {
