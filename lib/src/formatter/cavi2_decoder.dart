@@ -86,15 +86,24 @@ class Cavi2MessageEncoderDecoder implements MqttMessageEncoderDecoder {
         // process time data : // TODO: handle time when null
         transformed['TIMESTAMP_EXECUTION'] = encodedData?['time'];
 
-        // Process image data
-        String? img = encodedData?['img']?['id'];
-        int? imgH = encodedData?['img']?['height'];
-        int? imgW = encodedData?['img']?['width'];
+        if (encodedMetadata['img'] != null) {
+          if (encodedMetadata['img'].runtimeType == List) {
+            (encodedMetadata['img'] as List).asMap().forEach(
+              (key, value) {
+                transformed['IMG'][key] = value['id'];
+                transformed['IMG_HEIGHT'][key] = value['height'];
+                transformed['IMG_WIDTH'][key] = value['width'];
+              },
+            );
 
-        if (img != null) {
-          transformed['IMG'] = img;
-          transformed['IMG_HEIGHT'] = imgH;
-          transformed['IMG_WIDTH'] = imgW;
+            print('image is list');
+          } else {
+            transformed['IMG'] = encodedMetadata['img']['id'];
+            transformed['IMG_HEIGHT'] = encodedMetadata['img']['height'];
+            transformed['IMG_WIDTH'] = encodedMetadata['img']['width'];
+
+            print('image is string');
+          }
         }
 
         // Merge transformed with capture and plugin metadata
@@ -109,6 +118,8 @@ class Cavi2MessageEncoderDecoder implements MqttMessageEncoderDecoder {
       encodedMetadata?.forEach((k, v) {
         transformed[k.toUpperCase()] = v;
       });
+
+      print('node is ${transformed['EE_ID']}');
 
       return transformed;
     } catch (e, s) {
