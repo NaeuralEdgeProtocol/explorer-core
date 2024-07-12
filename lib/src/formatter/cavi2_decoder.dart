@@ -86,21 +86,21 @@ class Cavi2MessageEncoderDecoder implements MqttMessageEncoderDecoder {
         // process time data : // TODO: handle time when null
         transformed['TIMESTAMP_EXECUTION'] = encodedData?['time'];
 
-        if (encodedMetadata['img'] != null) {
-          if (encodedMetadata['img'].runtimeType == List) {
-            (encodedMetadata['img'] as List).asMap().forEach(
+        if (encodedData['img'] != null) {
+          if (encodedData['img'].runtimeType == List) {
+            (encodedData['img'] as List).asMap().forEach(
               (key, value) {
                 transformed['IMG'][key] = value['id'];
-                transformed['IMG_HEIGHT'][key] = value['height'];
-                transformed['IMG_WIDTH'][key] = value['width'];
+                // transformed['IMG_HEIGHT'][key] = value['height'];
+                // transformed['IMG_WIDTH'][key] = value['width'];
               },
             );
 
             print('image is list');
           } else {
-            transformed['IMG'] = encodedMetadata['img']['id'];
-            transformed['IMG_HEIGHT'] = encodedMetadata['img']['height'];
-            transformed['IMG_WIDTH'] = encodedMetadata['img']['width'];
+            transformed['IMG'] = encodedData['img']['id'];
+            // transformed['IMG_HEIGHT'] = encodedData['img']['height'];
+            // transformed['IMG_WIDTH'] = encodedData['img']['width'];
 
             print('image is string');
           }
@@ -118,8 +118,6 @@ class Cavi2MessageEncoderDecoder implements MqttMessageEncoderDecoder {
       encodedMetadata?.forEach((k, v) {
         transformed[k.toUpperCase()] = v;
       });
-
-      print('node is ${transformed['EE_ID']}');
 
       return transformed;
     } catch (e, s) {
