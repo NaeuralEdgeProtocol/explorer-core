@@ -1,17 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:explorer_core/explorer_core.dart';
-import 'package:explorer_core/src/base/generic_session.dart';
 import 'package:explorer_core/src/comm/mqtt_wrapper.dart';
-import 'package:explorer_core/src/commands/e2_commands.dart';
 import 'package:explorer_core/src/const/mqtt_config.dart';
 import 'package:explorer_core/src/ec_signature_verify/aixp_verifier.dart';
-import 'package:explorer_core/src/formatter/format_decoder.dart';
 import 'package:explorer_core/src/models/e2_box.dart';
-import 'package:explorer_core/src/models/messages/e2_heartbeat.dart';
-import 'package:explorer_core/src/models/messages/e2_notification.dart';
-import 'package:explorer_core/src/models/messages/e2_payload.dart';
-import 'package:explorer_core/src/models/utils_models/e2_heartbeat.dart';
 
 class MqttSession extends GenericSession {
   /// Message Veirifer
@@ -82,41 +75,47 @@ class MqttSession extends GenericSession {
 
   @override
   Future<void> connect() async {
-    /// Could abstract everything??
-    /// Heartbeat connect
-    _heartbeatReceiveStream = StreamController<Map<String, dynamic>>();
-    _heartbeatReceiveStream?.stream.listen((message) {
-      var messageVerifier = aixpVerifier.verifyMessage(message);
-      if (messageVerifier) {
-        onHeartbeat(E2Heartbeat.fromMap(message));
-      }
-    });
-    await _heartbeatMqtt.serverConnect(receiveStream: _heartbeatReceiveStream);
-    _heartbeatMqtt.subscribe();
+    try {
+      /// Could abstract everything??
+      /// Heartbeat connect
+      _heartbeatReceiveStream = StreamController<Map<String, dynamic>>();
+      _heartbeatReceiveStream?.stream.listen((message) {
+        var messageVerifier = aixpVerifier.verifyMessage(message);
+        if (messageVerifier) {
+          onHeartbeat(E2Heartbeat.fromMap(message));
+        }
+      });
+      await _heartbeatMqtt.serverConnect(
+          receiveStream: _heartbeatReceiveStream);
+      _heartbeatMqtt.subscribe();
 
-    /// Notification connect
-    _notificationReceiveStream = StreamController<Map<String, dynamic>>();
-    _notificationReceiveStream?.stream.listen((message) {
-      var messageVerifier = aixpVerifier.verifyMessage(message);
-      if (messageVerifier) {
-        onNotification(E2Notification.fromMap(message));
-      }
-    });
-    await _notificationMqtt.serverConnect(
-      receiveStream: _notificationReceiveStream,
-    );
-    _notificationMqtt.subscribe();
+      /// Notification connect
+      _notificationReceiveStream = StreamController<Map<String, dynamic>>();
+      _notificationReceiveStream?.stream.listen((message) {
+        var messageVerifier = aixpVerifier.verifyMessage(message);
+        if (messageVerifier) {
+          onNotification(E2Notification.fromMap(message));
+        }
+      });
+      await _notificationMqtt.serverConnect(
+        receiveStream: _notificationReceiveStream,
+      );
+      _notificationMqtt.subscribe();
 
-    /// Payload (Default communicator) connect
-    _payloadReceiveStream = StreamController<Map<String, dynamic>>();
-    _payloadReceiveStream?.stream.listen((message) {
-      var messageVerifier = aixpVerifier.verifyMessage(message);
-      if (messageVerifier) {
-        onPayload(E2Payload.fromJson(message));
-      }
-    });
-    await _payloadMqtt.serverConnect(receiveStream: _payloadReceiveStream);
-    _payloadMqtt.subscribe();
+      /// Payload (Default communicator) connect
+      _payloadReceiveStream = StreamController<Map<String, dynamic>>();
+      _payloadReceiveStream?.stream.listen((message) {
+        var messageVerifier = aixpVerifier.verifyMessage(message);
+        if (messageVerifier) {
+          onPayload(E2Payload.fromJson(message));
+        }
+      });
+      await _payloadMqtt.serverConnect(receiveStream: _payloadReceiveStream);
+      _payloadMqtt.subscribe();
+    } catch (e) {
+      print("$e error");
+      rethrow;
+    }
   }
 
   @override
