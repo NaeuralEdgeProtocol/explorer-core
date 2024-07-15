@@ -93,11 +93,13 @@ class MqttWrapper {
             onMessage!.call(decodedPayload);
           }
         } catch (_) {
+          rethrow;
           // print(pt);
         }
       });
     } catch (_) {
       print('Mqtt conn failed: $_');
+      rethrow;
     }
   }
 
