@@ -39,6 +39,7 @@ class MqttWrapper {
       ..onDisconnected = _onDisconnected
       ..onSubscribed = _onSubscribed
       ..pongCallback = pong
+      ..secure = server.isSecured
       ..autoReconnect = true;
 
     /// also has a startClear, should we use this?

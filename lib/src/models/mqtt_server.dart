@@ -8,6 +8,7 @@ class MqttServer {
     required this.port,
     required this.username,
     required this.password,
+    this.isSecured = false,
   });
 
   /// The display name for the server. This name can be anything, and we shouldn't have name duplicates. Its used to represent
@@ -23,9 +24,23 @@ class MqttServer {
   /// Mqtt username
   final String? username;
 
+  /// Mqtt Secured TLS connection or not
+  final bool isSecured;
+
   /// Mqtt password
   /// ToDO: The password should be stored differently? Encrypted?
   final String? password;
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "host": host,
+      "port": port,
+      "username": username,
+      "password": password,
+      "isSecured": isSecured,
+    };
+  }
 
   /// Default object for server. This should not be used like this in the future
   static final MqttServer defaultServer = MqttServer(
